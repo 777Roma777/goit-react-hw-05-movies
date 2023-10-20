@@ -1,9 +1,8 @@
-import React, { lazy, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import css from './movieInfo.module.css'; // Import the CSS module
+import css from './movieInfo.module.css';
 
-const Cast = lazy(() => import('components/Cast/cast'));
-const Reviews = lazy(() => import('components/Reviews/reviews'));
+
 
 const MovieInfo = ({ movie }) => {
   const location = useLocation();
@@ -42,17 +41,18 @@ const MovieInfo = ({ movie }) => {
         <ul className={css['additional-list']}>
           <li>
             <Link to="cast" className={css['cast-reviews-link']}>
-              <Cast />
+              Cast
             </Link>
           </li>
           <li>
             <Link to="reviews" className={css['cast-reviews-link']}>
-              <Reviews />
+              Reviews
             </Link>
           </li>
         </ul>
       </div>
-      <Outlet />
+        <Outlet />
+      
     </div>
   );
 };

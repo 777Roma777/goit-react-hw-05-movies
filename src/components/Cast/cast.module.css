@@ -1,0 +1,22 @@
+
+.cast-list {
+    margin-top: 15px;
+    margin-bottom: 30px;
+}
+
+
+   
+
+.cast-img {
+    width: 100px;
+    height: 150px;
+  object-fit: cover;
+}
+
+.cast-name {
+    color: black;
+}
+
+.cast-character {
+color: black;
+}

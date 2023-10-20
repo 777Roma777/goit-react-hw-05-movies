@@ -1,0 +1,14 @@
+.reviews-list {
+margin-top: 15px;
+}
+
+
+.reviews-author{
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.reviews-content {
+padding-top: 10px;
+padding-bottom: 10px;
+}
