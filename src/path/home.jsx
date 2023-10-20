@@ -1,46 +1,37 @@
+import Loader from 'components/Loader/loader';
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { ErrorMessage } from 'components/ErrorMessage/errorMessage';
+import { fetchFilms } from 'services/api';
+import { MoviesList } from 'components/MoviesList/moviesList';
 
 const Home = () => {
   const [trendingMovies, setTrendingMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwYzFlODliOWRlZDYwOWIwM2Y2YjIzZWJhNzA2OGQ2ZCIsInN1YiI6IjY1MmZlYjkzMzU4ZGE3NWI1YzBkYjA3OCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.QRGnslGWLfs6wcgCsRSPcC2CJHG3SzU9K7engGH1LDM';
-
-    const options = {
-      method: 'GET',
-      url: 'https://api.themoviedb.org/3/trending/all/day',
-      params: { language: 'en-US' },
-      headers: {
-        accept: 'application/json',
-        Authorization: `Bearer ${API_KEY}`,
-      },
-    };
-
-    const fetchData = async () => {
+    const fetchTopMovies = async () => {
       try {
-        const response = await axios(options);
-        setTrendingMovies(response.data.results);
+        setIsLoading(true);
+        const data = await fetchFilms();
+        const filmsData = data.results;
+        setTrendingMovies(filmsData);
       } catch (error) {
-        console.error(error);
+        setError(error.message);
+      } finally {
+        setIsLoading(false)
       }
-    };
-
-    fetchData();
+    }
+    fetchTopMovies();
   }, []); 
 
   return (
     <div>
-      <h1>Trending Movies Today</h1>
-      <ul>
-        {trendingMovies.map((movie) => (
-          movie.title ? (
-            <li key={movie.id}><Link to={`/movies/${movie.id}`}>{movie.title}</Link></li>
-          ) : null
-        ))}
-      </ul>
-    </div>
+      {isLoading && <Loader />}
+      {error && <ErrorMessage />}
+      <h1>Trending today</h1>
+      {trendingMovies && <MoviesList movies={ trendingMovies} />}
+   </div>
   );
 };
 

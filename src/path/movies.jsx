@@ -1,58 +1,52 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { fetchMovie } from 'services/api';
+import Loader from 'components/Loader/loader';
+import { ErrorMessage } from 'components/ErrorMessage/errorMessage';
+import { MoviesList } from 'components/MoviesList/moviesList';
+import SearchBar from 'components/SearchBar/searchBar';
+import { useSearchParams } from 'react-router-dom';
 
 const Movies = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchedMovies, setSearchedMovies] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwYzFlODliOWRlZDYwOWIwM2Y2YjIzZWJhNzA2OGQ2ZCIsInN1YiI6IjY1MmZlYjkzMzU4ZGE3NWI1YzBkYjA3OCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.QRGnslGWLfs6wcgCsRSPcC2CJHG3SzU9K7engGH1LDM';
+  const query = searchParams.get('query');
 
   useEffect(() => {
-    const fetchData = async () => {
+    if (!query) return;
+    const fetchMovieSearch = async () => {
       try {
-        const options = {
-          method: 'GET',
-          url: 'https://api.themoviedb.org/3/search/movie',
-          params: {
-            query: searchTerm,
-            include_adult: 'false',
-            language: 'en-US',
-            page: '1',
-          },
-          headers: {
-            accept: 'application/json',
-            Authorization: `Bearer ${API_KEY}`,
-          },
-        };
-
-        const response = await axios(options);
-        setSearchResults(response.data.results);
+        setIsLoading(true);
+        const { results } = await fetchMovie(query);
+        setSearchedMovies(results);
       } catch (error) {
-        console.error(error);
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
       }
     };
+    fetchMovieSearch();
+  }, [query]);
 
-    if (searchTerm) {
-      fetchData();
-    } else {
-      setSearchResults([]);
+  const onSubmit = evt => {
+    evt.preventDefault();
+    const searchWord = evt.currentTarget.searchInput.value.trim();
+    if (!searchWord) {
+      return alert('Please, enter your keyword!');
     }
-  }, [searchTerm]);
+    setSearchParams({ query: searchWord });
+
+    evt.currentTarget.reset();
+  };
 
   return (
     <div>
-      <h1>Search Movies</h1>
-      <input
-        type="text"
-        placeholder="Search for a movie..."
-        value={searchTerm}
-        onChange={e => setSearchTerm(e.target.value)}
-      />
-      <ul>
-        {searchResults.map(movie => (
-          <li key={movie.id}>{movie.title}</li>
-        ))}
-      </ul>
+      <SearchBar handleSubmit={onSubmit} />
+      {isLoading && <Loader />}
+      {error && <ErrorMessage />}
+      {searchedMovies && <MoviesList movies={searchedMovies} />}
     </div>
   );
 };
